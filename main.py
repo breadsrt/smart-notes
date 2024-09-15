@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import *
 
 from file_helper import *
 
@@ -65,12 +65,72 @@ def show_note():
     list_tags.clear()
     list_tags.addItems(notes[key]['теги'])
 
+
 def save_note():
+    #отримуємо ключ замітки
     key = list_notes.selectedItems()[0].text()
     notes[key]['текст'] = field_text.toPlainText()
     write_in_file(notes)
 
-button_note_save.clicked.connect(save_note)
+
+def new_note():
+    note_name, ok = QInputDialog.getText(window,"Створення замітки", "Назва замітки")
+    if ok == True:
+        notes[note_name] = {
+            "текст": "",
+            "теги":[]
+        }
+    list_notes.clear()
+    list_notes.addItems(notes)
+    write_in_file(notes)
+
+
+def delete_note():
+    key = list_notes.selectedItems()[0].text()
+    notes.pop(key)
+    list_notes.clear()
+    list_notes.addItems(notes)
+    write_in_file(notes)
+
+def add_tag():
+    note_key = list_notes.selectedItems()[0].text()
+    tag_name, ok = QInputDialog.getText(window, "Створення тегу", "Назва тегу")
+    if ok == True:
+        notes[note_key]["теги"].append(tag_name)
+        list_tags.clear()
+        list_tags.addItems(notes[note_key]["теги"])
+        write_in_file(notes)
+
+def delete_tag():
+    note_key = list_notes.selectedItems()[0].text()
+    tag_key = list_tags.selectedItems()[0].text()
+    notes[note_key]["теги"].remove(tag_key)
+    list_tags.clear()
+    list_tags.addItems(notes[note_key]["теги"])
+    write_in_file(notes)
+
+
+def search():
+    tag_name = field_tag.text()
+    filtered_notes = {}
+    if tag_name == "":
+        list_notes.clear()
+        list_notes.addItems(notes)
+    else:
+        for element in notes:
+            if tag_name in notes[element]["теги"]:
+                filtered_notes[element] = notes[element]
+
+        list_notes.clear()
+        list_notes.addItems(filtered_notes)
+button_tag_search.clicked.connect(search)
+
+
+button_tag_del.clicked.connect(delete_tag)
+button_tag_add.clicked.connect(add_tag)
+button_note_del.clicked.connect(delete_note)
+button_note_create.clicked.connect(new_note)
 list_notes.itemClicked.connect(show_note)
+button_note_save.clicked.connect(save_note)
 window.show()
-app.exec_()
+app.exec()
