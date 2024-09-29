@@ -19,7 +19,7 @@ button_note_create = QPushButton('Створити замітку ')
 button_note_del = QPushButton('Видалити замітку')
 button_note_save = QPushButton('Зберегти замітку')
 
-field_tag = QLineEdit('')
+field_tag = QLineEdit()
 field_tag.setPlaceholderText('Введіть тег...')
 field_text = QTextEdit()
 button_tag_add = QPushButton('Добавити до змітки')
