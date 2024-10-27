@@ -1,5 +1,5 @@
 import os
-from PIL import Image
+from PIL import Image, ImageFilter, ImageEnhance
 from PIL.ImageQt import QImage, QPixmap
 from PyQt6.QtWidgets import *
 
@@ -23,6 +23,7 @@ class PhotoManager:
         self.photo = None
         self.folder = None
         self.filename = None
+        self.image_lbl = None
 
     def load(self):
         image_path = os.path.join(self.folder, self.filename)
@@ -33,6 +34,21 @@ class PhotoManager:
     def show_image(self, image_lbl):
         pixels = pil2pixmap(self.photo)
         pixels = pixels.scaledToWidth(500)
+        image_lbl.setPixmap(pixels)
+
+
+    def bw(self):
+        self.photo = self.photo.convert("L")
+        self.show_image(self.image_lbl)
+
+    def bw1(self):
+        self.photo = self.photo.filter(ImageFilter.BLUR)
+        self.show_image(self.image_lbl)
+
+    def bw2(self):
+        self.photo = ImageEnhance.Brightness(self.photo).enhance(0.3)
+        self.show_image(self.image_lbl)
+
 
 app = QApplication([])
 window = QWidget()
@@ -54,7 +70,7 @@ menu_btn = QPushButton("Меню")
 image_lbl = QLabel("Картинка")
 list_widget = QListWidget()
 dir_btn = QPushButton("Папка")
-filter1 = QPushButton("фільтр1")
+chb = QPushButton("фільтр1")
 filter2 = QPushButton("фільтр2")
 filter3 = QPushButton("фільтр3")
 filter4 = QPushButton("фільтр4")
@@ -70,13 +86,14 @@ main_line.addLayout(v1)
 v2 = QVBoxLayout()
 v2.addWidget(image_lbl)
 h1 = QHBoxLayout()
-h1.addWidget(filter1)
+h1.addWidget(chb)
 h1.addWidget(filter2)
 h1.addWidget(filter3)
 h1.addWidget(filter4)
 h1.addWidget(filter5)
 
 photo_manager = PhotoManager()
+photo_manager.image_lbl = image_lbl
 
 def open_folder():
     photo_manager.folder = QFileDialog.getExistingDirectory()
@@ -94,6 +111,9 @@ def show_chosen_image():
 main_line.addLayout(v2)
 v2.addLayout(h1)
 
+filter3.clicked.connect(photo_manager.bw2)
+filter2.clicked.connect(photo_manager.bw1)
+chb.clicked.connect(photo_manager.bw)
 list_widget.currentRowChanged.connect(show_chosen_image)
 dir_btn.clicked.connect(open_folder)
 window.setLayout(main_line)
